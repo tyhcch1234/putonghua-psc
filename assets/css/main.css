@@ -286,3 +286,12 @@ footer a{color:var(--ink-3);text-decoration:underline}
   body{background:#fff}
   .print-only{display:block}
 }
+
+/* ---------- 發音元件 ---------- */
+.speed-btn{width:44px;font-size:11.5px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.speed-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:#fff8f6}
+[data-say]{-webkit-tap-highlight-color:transparent}
+[data-say].saying{position:relative}
+.word.saying,.tone-chip.saying{border-color:var(--accent);background:#fff6f3;box-shadow:0 0 0 2px rgba(178,58,47,.12)}
+[data-say].saying .w::after{content:"🔊";font-size:11px;margin-left:4px;vertical-align:super;opacity:.75}
+@media print{.speed-btn{display:none!important}}

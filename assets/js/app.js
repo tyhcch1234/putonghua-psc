@@ -59,30 +59,11 @@
   }
 
   /* ---------------- speech ---------------- */
-  var voice = null, voiceTried = false;
-  function pickVoice() {
-    if (voiceTried) return voice;
-    voiceTried = true;
-    if (!('speechSynthesis' in window)) return null;
-    var vs = speechSynthesis.getVoices() || [];
-    var zh = vs.filter(function (v) { return /zh[-_]?(CN|Hans|SG)/i.test(v.lang) || /cmn|Chinese|普通話|普通话/i.test(v.name); });
-    voice = zh[0] || vs.filter(function (v) { return /^zh/i.test(v.lang); })[0] || null;
-    return voice;
-  }
-  if ('speechSynthesis' in window) {
-    speechSynthesis.onvoiceschanged = function () { voiceTried = false; pickVoice(); };
-  }
-  function speak(text) {
-    if (!('speechSynthesis' in window)) { toast('此瀏覽器不支援語音示範'); return; }
-    var v = pickVoice();
-    if (!v) { toast('此裝置未安裝中文語音，示範發聲不可用'); return; }
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'zh-CN';
-    u.voice = v;
-    u.rate = 0.85;
-    u.pitch = 1;
-    speechSynthesis.speak(u);
+  /* 發音交由 assets/js/audio.js 的發音元件處理：
+     先播站內音檔，缺檔才退回瀏覽器語音。 */
+  function speak(text, node) {
+    if (window.PSCAudio) { window.PSCAudio.speak(text, node); return; }
+    toast('發音元件未載入，請重新整理頁面');
   }
 
   /* ---------------- navigation ---------------- */
@@ -742,9 +723,11 @@
       el.style.cursor = 'pointer';
       el.addEventListener('click', function (e) {
         e.preventDefault();
-        speak(el.dataset.say);
+        speak(el.dataset.say, el);
       });
     });
+
+    if (window.PSCAudio) window.PSCAudio.prefetch(4);
 
     window.scrollTo(0, 0);
   }
@@ -752,9 +735,14 @@
   /* ---------------- boot ---------------- */
   window.addEventListener('hashchange', function () {
     closeDrawer();
-    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    if (window.PSCAudio) window.PSCAudio.stop();
     render();
   });
   document.getElementById('yr').textContent = new Date().getFullYear();
+  var speedBtn = document.getElementById('speedBtn');
+  if (speedBtn && window.PSCAudio) {
+    window.PSCAudio.paintSpeedBtn(speedBtn);
+    speedBtn.addEventListener('click', function () { window.PSCAudio.toggleSpeed(); });
+  }
   render();
 })();

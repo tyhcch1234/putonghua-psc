@@ -33,9 +33,23 @@
 ## 技術
 
 - 純 HTML / CSS / JavaScript，無建置步驟、無外部依賴
-- 語音示範使用瀏覽器 `SpeechSynthesis`（zh-CN）；裝置未安裝中文語音時會提示
+- **發音元件**：`assets/js/audio.js` + 站內音檔 `assets/audio/*.mp3`（253 條，約 1.3 MB，普通話女聲），
+  點字即發聲，離線、靜音模式下亦與裝置語音無關；頁首 🔊 可切換 1.0×／0.7× 慢速示範。
+  只有音檔載入失敗時才退回瀏覽器 `SpeechSynthesis`（zh-CN）。
 - 學習進度與測驗分數存於 `localStorage`，不上傳
 - 支援手機、平板、桌面；可直接列印
+
+### 重新產生發音音檔
+
+改了字表或詞表之後（需要網絡與 `pip install edge-tts opencc-python-reimplemented`）：
+
+```bash
+node _build/extract_texts.js     # 抽出所有 data-say 文字 → _build/texts.json
+python3 _build/gen_audio.py      # 逐條合成 assets/audio/<hash>.mp3 並更新 audio-pack.js
+python3 _build/trim_audio.py     # 剪掉頭尾靜音（需要 ffmpeg，可用 npx ffmpeg-static）
+```
+
+`_build/test_site.js` 會在 jsdom 內載入整個網站，檢查每條 `data-say` 都有對應音檔、點擊能觸發播放。
 
 ## 本機預覽
 
